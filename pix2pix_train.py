@@ -11,12 +11,12 @@ from logger import Logger
 parser = argparse.ArgumentParser()
 parser.add_argument('--dataset', required=False, default='train', help='input dataset')
 parser.add_argument('--direction', required=False, default='BtoA', help='input and target image order')
-parser.add_argument('--batch_size', type=int, default=25, help='train batch size')
+parser.add_argument('--batch_size', type=int, default=1, help='train batch size')
 parser.add_argument('--ngf', type=int, default=64)
 parser.add_argument('--ndf', type=int, default=64)
-parser.add_argument('--input_size', type=int, default=256, help='input size')
+parser.add_argument('--input_size', type=int, default=512, help='input size')
 parser.add_argument('--resize_scale', type=int, default=286, help='resize scale (0 is false)')
-parser.add_argument('--crop_size', type=int, default=256, help='crop size (0 is false)')
+parser.add_argument('--crop_size', type=int, default=512, help='crop size (0 is false)')
 parser.add_argument('--fliplr', type=bool, default=True, help='random fliplr True of False')
 parser.add_argument('--num_epochs', type=int, default=100, help='number of train epochs')
 parser.add_argument('--lrG', type=float, default=0.0002, help='learning rate for generator, default=0.0002')
@@ -38,20 +38,18 @@ if not os.path.exists(model_dir):
     os.mkdir(model_dir)
 
 # Data pre-processing
-transform = transforms.Compose([transforms.Resize(params.input_size),
-                                transforms.ToTensor(),
-                                transforms.Normalize(mean=0.5, std=0.5)])
+transform = transforms.Compose([
+                                transforms.ToTensor()])
 
 #Data loading
     # Train data
-train_data = DatasetFromFolder(data_dir, subfolder_input='C',subfolder_target='D', direction=params.direction, transform=transform,
-                               resize_scale=params.resize_scale, crop_size=params.crop_size, fliplr=params.fliplr)
+train_data = DatasetFromFolder(data_dir, subfolder_input='A',subfolder_target='B',transform=transform, direction=params.direction)
 train_data_loader = torch.utils.data.DataLoader(dataset=train_data,
                                                 batch_size=params.batch_size,
                                                 shuffle=True)
 
     # Test data
-test_data = DatasetFromFolder(data_dir, subfolder_input='C',subfolder_target='D', direction=params.direction, transform=transform)
+test_data = DatasetFromFolder(data_dir, subfolder_input='A',subfolder_target='B',transform=transform, direction=params.direction)
 test_data_loader = torch.utils.data.DataLoader(dataset=test_data,
                                                batch_size=1,
                                                shuffle=False)
@@ -65,8 +63,8 @@ D.cuda()
 # G.normal_weight_init(mean=0.0, std=0.02)
 # D.normal_weight_init(mean=0.0, std=0.02)
 
-G.load_state_dict(torch.load(model_dir + '25generator_param.pkl'))
-D.load_state_dict(torch.load(model_dir + '25discriminator_param.pkl'))
+G.load_state_dict(torch.load(model_dir + '1generator_param.pkl'))
+D.load_state_dict(torch.load(model_dir + '1discriminator_param.pkl'))
 
 # Set the logger
 D_log_dir = save_dir + 'D_logs'
@@ -92,7 +90,7 @@ D_avg_losses = []
 G_avg_losses = []
 
 step = 0
-for epoch in range(26, params.num_epochs):
+for epoch in range(2,params.num_epochs):
     torch.cuda.empty_cache()
     D_losses = []
     G_losses = []

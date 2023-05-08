@@ -10,9 +10,9 @@ import os
 parser = argparse.ArgumentParser()
 parser.add_argument('--dataset', required=False, default='train', help='input dataset')
 parser.add_argument('--direction', required=False, default='BtoA', help='input and target image order')
-parser.add_argument('--batch_size', type=int, default=25, help='test batch size')
+parser.add_argument('--batch_size', type=int, default=1, help='test batch size')
 parser.add_argument('--ngf', type=int, default=64)
-parser.add_argument('--input_size', type=int, default=256, help='input size')
+parser.add_argument('--input_size', type=int, default=512, help='input size')
 params = parser.parse_args()
 print(params)
 
@@ -31,7 +31,7 @@ test_transform = transforms.Compose([transforms.Resize(params.input_size),
                                     transforms.ToTensor()])
 
 # Test data
-test_data = DatasetFromFolder(data_dir, subfolder_input='C',subfolder_target='D', direction=params.direction, transform=test_transform)
+test_data = DatasetFromFolder(data_dir, subfolder_input='A',subfolder_target='B', direction=params.direction, transform=test_transform)
 test_data_loader = torch.utils.data.DataLoader(dataset=test_data,
                                                batch_size=params.batch_size,
                                                shuffle=False)
@@ -39,7 +39,7 @@ test_data_loader = torch.utils.data.DataLoader(dataset=test_data,
 # Load model
 G = Generator(1, params.ngf, 3)
 G.cuda()
-G.load_state_dict(torch.load(model_dir + '0generator_param.pkl'))
+G.load_state_dict(torch.load(model_dir + '2generator_param.pkl'))
 
 # Test
 for i, (input, target) in enumerate(test_data_loader):
